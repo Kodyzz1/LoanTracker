@@ -1,22 +1,19 @@
 import { useState } from 'react';
 import './App.css';
-import PaymentForm from './PaymentForm.jsx'; // Step 1: Import PaymentForm
+import PaymentForm from './PaymentForm.jsx';
+import PaymentList from './PaymentList.jsx'; // Step 1: Import PaymentList
 
 function App() {
-  const [totalAmount, setTotalAmount] = useState(7500); // Noted change: Initial state set to 7500
+  const [totalAmount, setTotalAmount] = useState(7500);
   const [payments, setPayments] = useState([]);
 
   const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const remainingBalance = totalAmount - totalPaid;
 
-  // Step 2: Define the handler function to receive data from PaymentForm
   const addPaymentHandler = (paymentData) => {
-    // Update the payments state immutably (create a new array)
-    // Adds the new payment to the beginning of the list
     setPayments((prevPayments) => {
       return [paymentData, ...prevPayments];
     });
-    // Console log to see the update (optional)
     console.log('Updated Payments:', [paymentData, ...payments]);
   };
 
@@ -35,24 +32,14 @@ function App() {
 
       <section className="add-payment-form">
         <h2>Add New Payment</h2>
-        {/* Step 3: Render PaymentForm and pass the handler function as a prop */}
         <PaymentForm onAddPayment={addPaymentHandler} />
       </section>
 
       <section className="payment-history">
         <h2>Payment History</h2>
-        {payments.length === 0 ? (
-          <p>No payments logged yet.</p>
-        ) : (
-          <ul>
-            {/* Using payment.id as key now that we generate one */}
-            {payments.map((payment) => (
-              <li key={payment.id}>
-                Date: {payment.date}, Amount: ${payment.amount.toFixed(2)}
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Step 2: Remove old list logic and render PaymentList */}
+        <PaymentList items={payments} />
+        {/* The conditional logic and mapping is now inside PaymentList */}
       </section>
     </div>
   );
