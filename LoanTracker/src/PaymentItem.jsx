@@ -1,15 +1,21 @@
-import React from 'react';
-import './PaymentItem.css'; // Import the CSS file
+import PropTypes from 'prop-types'; // Import PropTypes
+import './PaymentItem.css';
 
-// This component receives props for date and amount
-function PaymentItem(props) {
+// Destructure props to get date and amount directly
+function PaymentItem({ date, amount }) {
   return (
     <li className="payment-item">
-      <span className="payment-item__date">{props.date}</span>
-      <span className="payment-item__amount">${props.amount.toFixed(2)}</span>
-      {/* We could add edit/delete buttons here later */}
+      {/* Use the destructured variables */}
+      <span className="payment-item__date">{date}</span>
+      <span className="payment-item__amount">${amount.toFixed(2)}</span>
     </li>
   );
 }
+
+// Define expected prop types
+PaymentItem.propTypes = {
+  date: PropTypes.string.isRequired, // date should be a string and is required
+  amount: PropTypes.number.isRequired // amount should be a number and is required
+};
 
 export default PaymentItem;

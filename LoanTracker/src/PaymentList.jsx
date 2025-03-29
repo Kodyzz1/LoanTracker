@@ -1,28 +1,38 @@
-import React from 'react';
-import PaymentItem from './PaymentItem'; // Import the PaymentItem component
-import './PaymentList.css'; // Import the CSS file
+import PropTypes from 'prop-types'; // Import PropTypes
+import PaymentItem from './PaymentItem';
+import './PaymentList.css';
 
-// This component receives the list of payments as 'items' prop
-function PaymentList(props) {
+// Destructure props to get 'items' directly
+function PaymentList({ items }) {
 
-  // Conditional rendering: Show message if list is empty
-  if (props.items.length === 0) {
+  // Use 'items' directly now instead of props.items
+  if (items.length === 0) {
     return <p className="payment-list__fallback">No payments logged yet.</p>;
   }
 
-  // If list is not empty, render the list
+  // Map directly over 'items'
   return (
     <ul className="payment-list">
-      {props.items.map((payment) => (
+      {items.map((payment) => (
         <PaymentItem
-          key={payment.id} // Use the unique ID for the key
+          key={payment.id}
           date={payment.date}
           amount={payment.amount}
-          // Pass any other payment details as props if needed later
         />
       ))}
     </ul>
   );
 }
+
+// Define expected prop types
+PaymentList.propTypes = {
+  items: PropTypes.arrayOf( // items should be an array...
+    PropTypes.shape({      // ...of objects with a specific shape:
+      id: PropTypes.number.isRequired,      // - id (required number, from Date.now())
+      date: PropTypes.string.isRequired,    // - date (required string)
+      amount: PropTypes.number.isRequired // - amount (required number)
+    })
+  ).isRequired // The items array itself is required
+};
 
 export default PaymentList;
