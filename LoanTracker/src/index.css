@@ -1,21 +1,33 @@
 /* src/index.css */
 
+/* 1. Import Google Font (Lato: Regular 400, Bold 700) */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
 * {
-    box-sizing: border-box; /* More intuitive element sizing */
-  }
-  
-  html {
-    font-family: sans-serif; /* Basic sans-serif font */
-  }
-  
-  body {
-    margin: 0; /* Remove default body margin */
-    background-color: #222; /* Dark background */
-    color: #eee; /* Light text */
-  }
-  
-  h1, h2 {
-      color: #fff; /* Make headings brighter */
-      text-align: center;
-      margin-bottom: 1.5rem;
-  }
+  box-sizing: border-box;
+}
+
+html {
+  /* 2. Apply the imported font */
+  font-family: 'Lato', sans-serif; /* Use Lato, fallback to generic sans-serif */
+}
+
+body {
+  margin: 0;
+  background-color: #222;
+  color: #eee;
+}
+
+h1, h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    /* Optional: Explicitly use bold weight if desired */
+    /* font-weight: 700; */
+}
+
+/* 3. Ensure form elements inherit the font */
+button, input, label, select, textarea {
+    font-family: inherit; /* Make form elements use the body's font */
+    font-size: 1rem; /* Optional: Ensure consistent base size */
+}

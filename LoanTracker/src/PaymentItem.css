@@ -70,6 +70,31 @@
     border-color: #dc3545;
     color: white;
   }
+
+.payment-item__actions {
+    /* Simple flex layout for buttons if needed */
+     display: flex;
+     gap: 0.5rem; /* Space between buttons */
+  }
+  
+  .payment-item__edit-button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.35rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    border: 1px solid #6c757d; /* Gray border */
+    background-color: transparent;
+    color: #adb5bd; /* Gray text */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .payment-item__edit-button:hover,
+  .payment-item__edit-button:active {
+    background-color: #5a6268; /* Darker gray background */
+    border-color: #545b62;
+    color: white;
+  }
   
   /* Optional: Adjust delete button contrast on met/missed backgrounds if needed */
   /* You might uncomment and adjust these if the red outline button is hard to see */
@@ -87,4 +112,3 @@
       border-color: #bd2130;
       color: white;
   }
-  */

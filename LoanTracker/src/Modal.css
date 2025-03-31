@@ -1,0 +1,45 @@
+/* src/Modal.css */
+
+.backdrop {
+    position: fixed; /* Sit on top of everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    z-index: 20; /* Make sure it's above other content */
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent black */
+  }
+  
+  .modal {
+    position: fixed; /* Sit on top of everything */
+    top: 20vh; /* Position 20% from top */
+    left: 50%; /* Start at horizontal center */
+    transform: translateX(-50%); /* Shift left by half its width to truly center */
+    width: 80%; /* Responsive width */
+    max-width: 40rem; /* Max width */
+    background-color: #303030; /* Match app card background */
+    padding: 1.5rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    z-index: 30; /* Make sure it's above the backdrop */
+    animation: slide-down 300ms ease-out forwards; /* Simple animation */
+  }
+  
+  .modal-content {
+     /* Add styling for content inside modal if needed */
+     max-height: 60vh; /* Limit height and allow scrolling */
+     overflow-y: auto;
+  }
+  
+  
+  /* Animation */
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-3rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }

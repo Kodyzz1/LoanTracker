@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'; // Added useMemo
 import './App.css';
 import PaymentForm from './PaymentForm.jsx';
 import PaymentList from './PaymentList.jsx';
+import Modal from './Modal.jsx';
 
 // Define the base URL for our backend API
 const API_URL = 'http://localhost:3001/api';
@@ -35,6 +36,7 @@ function App() {
 
   // State for the due day input field's displayed value (string)
   const [dueDayInput, setDueDayInput] = useState(String(dueDay));
+  const [editingPayment, setEditingPayment] = useState(null);
 
   // --- Effects ---
 
@@ -158,6 +160,33 @@ function App() {
     } catch (e) { console.error("Failed to delete payment:", e); setError(`Failed to delete payment: ${e.message}`); }
   };
 
+  // Add these handler functions inside the App component
+
+const handleStartEdit = (paymentToEdit) => {
+    setEditingPayment(paymentToEdit);
+    // TODO: Later, we'll add logic here to open an Edit Modal
+    console.log("START EDITING:", paymentToEdit); // Check console for now
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingPayment(null);
+    console.log("CANCEL EDIT");
+  };
+  
+  // Placeholder for saving the edit - will contain API call later
+  const handleSaveEdit = async (updatedPaymentData) => {
+    // updatedPaymentData will come from the Edit Form, e.g., { date, amount }
+    if (!editingPayment) return; // Should not happen if modal logic is right
+  
+    console.log("SAVE EDIT - ID:", editingPayment.id, "New Data:", updatedPaymentData);
+    // TODO: Implement fetch PUT/PATCH request to backend API
+    // TODO: Update payments state array upon successful save
+    // TODO: Close the Edit Modal
+  
+    // For now, just close the editing state
+    setEditingPayment(null);
+  };
+
   // Configuration Input Handlers
   const handleGoalChange = (event) => {
     const value = event.target.value;
@@ -171,27 +200,44 @@ function App() {
     setDueDay(clampedDay); setDueDayInput(String(clampedDay));
   };
 
-  // --- JSX ---
+  // --- Component Return / JSX ---
   return (
     <div className="loan-tracker-app">
       <h1>My Loan Tracker</h1>
 
-      {/* Configuration Section */}
+      {/* --- Configuration Section --- */}
       <section className="loan-config">
           <h2>Configuration</h2>
           <div className="config-controls">
               <div className="config-control">
                   <label htmlFor="monthlyGoal">Monthly Goal ($)</label>
-                  <input type="number" id="monthlyGoal" value={monthlyGoal} onChange={handleGoalChange} min="0" step="1" />
+                  <input
+                      type="number"
+                      id="monthlyGoal"
+                      value={monthlyGoal} // Bind to numeric goal state
+                      onChange={handleGoalChange}
+                      min="0"
+                      step="1"
+                  />
               </div>
               <div className="config-control">
                   <label htmlFor="dueDay">Payment Due Day (1-31)</label>
-                  <input type="number" id="dueDay" value={dueDayInput} onChange={handleDueDayInputChange} onBlur={handleDueDayBlur} placeholder="1-31" min="1" max="31" step="1"/>
+                  <input
+                      type="number"
+                      id="dueDay"
+                      value={dueDayInput} // Bind to string input state
+                      onChange={handleDueDayInputChange} // Update string state on change
+                      onBlur={handleDueDayBlur} // Validate/update numeric state on blur
+                      placeholder="1-31"
+                      min="1" // Browser hints
+                      max="31" // Browser hints
+                      step="1"
+                  />
               </div>
           </div>
       </section>
 
-      {/* Summary Section */}
+      {/* --- Summary Section --- */}
       <section className="loan-summary">
         <h2>Summary</h2>
         <div className="summary-details">
@@ -201,26 +247,52 @@ function App() {
         </div>
       </section>
 
-      {/* Add Payment Section */}
+      {/* --- Add Payment Section --- */}
       <section className="add-payment-form">
         <h2>Add New Payment</h2>
         <PaymentForm onAddPayment={addPaymentHandler} />
       </section>
 
-      {/* Payment History Section */}
+      {/* --- Payment History Section --- */}
       <section className="payment-history">
         <h2>Payment History</h2>
-        {isLoading && <p>Loading payments...</p>}
-        {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+        {/* Display loading message */}
+        {isLoading && <p className="loading-message">Loading payments...</p>}
+        {/* Display error message */}
+        {error && <p className="error-message">Error: {error}</p>}
+        {/* Display payment list only if not loading and no error */}
         {!isLoading && !error && (
-          // Pass statuses object down
           <PaymentList
             items={payments}
             onDeletePayment={deletePaymentHandler}
-            paymentStatuses={paymentStatuses} // *** Pass calculated statuses ***
+            paymentStatuses={paymentStatuses}
+            onEditPayment={handleStartEdit} // Pass edit handler
           />
         )}
       </section>
+
+      {/* --- NEW: Conditionally Render Edit Modal --- */}
+      {/* This renders only when editingPayment state holds a payment object */}
+      {editingPayment && (
+        <Modal onClose={handleCancelEdit}> {/* Pass cancel handler to Modal */}
+          {/* Content for the Modal */}
+          <h2>Edit Payment</h2>
+          <p>Here we will put the edit form for payment ID: {editingPayment.id}</p>
+          <p>Date: {editingPayment.date}, Amount: ${editingPayment.amount.toFixed(2)}</p>
+          {/* Add placeholder buttons for now */}
+          <div style={{ textAlign: 'right', marginTop: '1rem' }}>
+             {/* Cancel button closes modal by calling handleCancelEdit */}
+             <button type="button" onClick={handleCancelEdit} style={{ marginRight: '0.5rem' }}>Cancel</button>
+             {/* Save button will eventually call handleSaveEdit */}
+             {/* We pass placeholder data for now, will be form data later */}
+             <button type="button" onClick={() => handleSaveEdit({ date: editingPayment.date, amount: editingPayment.amount })}>
+               Save Changes (Placeholder)
+            </button>
+          </div>
+        </Modal>
+      )}
+      {/* --- End Edit Modal --- */}
+
     </div>
   );
 }

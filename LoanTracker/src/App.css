@@ -77,4 +77,94 @@
       outline: none;
       border-color: #007bff; /* Use the same blue as button */
       box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      
+  }
+
+  /* src/App.css - Styles for Loading/Error Messages */
+
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 1rem;
+  margin: 1rem 0; /* Add some vertical margin */
+  border-radius: 6px;
+}
+
+.loading-message {
+  color: #ccc; /* Slightly dimmer text for loading */
+}
+
+.error-message {
+  color: #f8d7da; /* Light red text (Bootstrap danger text color) */
+  background-color: #721c24; /* Dark red background (Bootstrap danger background) */
+  border: 1px solid #f5c6cb; /* Lighter red border (Bootstrap danger border) */
+}
+
+/* Apply styles for tablets and smaller */
+@media (max-width: 768px) {
+    /* Reduce margin/padding on main container for smaller screens */
+    .loan-tracker-app {
+      margin: 1.5rem 1rem; /* Less vertical, less horizontal margin */
+      padding: 1.5rem; /* Less padding inside */
+    }
+  
+    h1 {
+      font-size: 1.8rem; /* Slightly smaller main heading */
+    }
+    h2 {
+      font-size: 1.3rem; /* Slightly smaller section headings */
+      margin-bottom: 1rem;
+    }
+  
+    /* Adjust section spacing */
+    .loan-tracker-app section {
+      margin-bottom: 1.5rem;
+    }
+    .loan-tracker-app section:not(:last-child) {
+      padding-bottom: 1.5rem; /* Less space before separator */
+    }
+  
+    /* Make form/config controls stack reliably if needed */
+    .config-control,
+    .payment-form__control {
+       /* flex-basis might already handle this with wrapping,
+          but explicitly setting width can ensure stacking */
+       /* min-width: 100%; You might uncomment this if they aren't stacking */
+    }
+  
+    /* Reduce button padding slightly */
+     .payment-form__actions button {
+       padding: 0.6rem 1.5rem;
+    }
+  
+     /* Reduce padding on payment items */
+     /* Note: .payment-item rules are in PaymentItem.css,
+        but we can override here or add there */
+     /* We'll add a rule in PaymentItem.css instead later if needed */
+  }
+  
+  /* Apply further adjustments for small mobile screens */
+  @media (max-width: 480px) {
+     html {
+         font-size: 95%; /* Slightly smaller base font overall */
+     }
+  
+     .loan-tracker-app {
+         margin: 1rem 0.5rem; /* Even less margin */
+         padding: 1rem; /* Even less padding */
+         border-radius: 10px; /* Slightly less rounding maybe */
+     }
+  
+     .config-controls,
+     .payment-form__controls {
+         gap: 0.75rem; /* Reduce gap between form inputs */
+     }
+  
+     /* Reduce list item padding */
+      /* .payment-item { padding: 0.5rem 0.75rem; } */
+      /* This should ideally go in PaymentItem.css inside a media query */
+  
+     /* Reduce delete button padding */
+     /* .payment-item__delete-button { padding: 0.25rem 0.75rem; } */
+     /* This should ideally go in PaymentItem.css inside a media query */
   }

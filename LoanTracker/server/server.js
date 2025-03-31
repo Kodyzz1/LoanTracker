@@ -62,7 +62,7 @@ app.get('/api/payments', async (_req, res) => {
   }
 });
 
-// POST a new payment
+// ---POST Route---
 app.post('/api/payments', async (req, res) => {
   if (!db) {
     return res.status(500).json({ message: 'Database not connected' });
@@ -103,16 +103,65 @@ app.post('/api/payments', async (req, res) => {
   }
 });
 
-
-// === Start Server ===
-async function startServer() {
-  await connectDB(); // Wait for DB connection first
-  app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+// ---PUT(Change Current Data) Route---
+app.put('/api/payments/:id', async (req, res) => {
+    if (!db) {
+      return res.status(500).json({ message: 'Database not connected' });
+    }
+    try {
+      const idString = req.params.id;
+      const idToUpdate = Number(idString);
+  
+      if (isNaN(idToUpdate)) {
+        return res.status(400).json({ message: 'Invalid payment ID format.' });
+      }
+  
+      // Get updated data from request body
+      const updatedData = req.body;
+      console.log(`PUT /api/payments/${idToUpdate} - Received body:`, updatedData);
+  
+      // Basic validation for received data
+      if (!updatedData || typeof updatedData.amount !== 'number' || typeof updatedData.date !== 'string') {
+        return res.status(400).json({ message: 'Invalid updated payment data format (requires date and amount).' });
+      }
+  
+      // Prepare the fields to update ($set operator updates only specified fields)
+      const updateDocument = {
+        $set: {
+          date: updatedData.date,
+          amount: updatedData.amount
+          // Note: We don't update serverTimestamp or the original numeric id here
+        }
+      };
+  
+      const collection = db.collection('payments');
+      // Find the document with the matching numeric 'id' field and update it
+      const result = await collection.updateOne({ id: idToUpdate }, updateDocument);
+  
+      if (result.matchedCount === 0) {
+        console.log(`PUT /api/payments/${idToUpdate} - Payment not found`);
+        return res.status(404).json({ message: 'Payment not found' });
+      }
+  
+      if (result.modifiedCount === 1) {
+        console.log(`PUT /api/payments/${idToUpdate} - Successfully modified`);
+        // Fetch the fully updated document to send back
+        const updatedPayment = await collection.findOne({ id: idToUpdate });
+        res.status(200).json(updatedPayment); // Send back the updated document
+      } else {
+         // Matched but not modified (likely data was the same)
+         console.log(`PUT /api/payments/${idToUpdate} - Matched but data was identical`);
+         const existingPayment = await collection.findOne({ id: idToUpdate });
+         res.status(200).json(existingPayment); // Still send back the document
+      }
+  
+    } catch (err) {
+      console.error(`Failed to update payment ${req.params.id}:`, err);
+      res.status(500).json({ message: 'Failed to update payment' });
+    }
   });
-}
 
-// DELETE a specific payment by its numeric ID
+  // ---DELETE Route---
 app.delete('/api/payments/:id', async (req, res) => {
     if (!db) {
       return res.status(500).json({ message: 'Database not connected' });
@@ -149,6 +198,15 @@ app.delete('/api/payments/:id', async (req, res) => {
       res.status(500).json({ message: 'Failed to delete payment' });
     }
   });
+
+
+// === Start Server ===
+async function startServer() {
+  await connectDB(); // Wait for DB connection first
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
+}
 
 startServer(); // Run the async function to connect DB and start Express
 

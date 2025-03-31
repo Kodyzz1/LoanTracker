@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import PaymentItem from './PaymentItem';
 import './PaymentList.css';
 
-// Destructure props: { items, onDeletePayment, paymentStatuses }
-function PaymentList({ items, onDeletePayment, paymentStatuses }) {
+// Destructure props: { items, onDeletePayment, paymentStatuses, onEditPayment }
+function PaymentList({ items, onDeletePayment, paymentStatuses, onEditPayment }) {
 
   if (items.length === 0) {
     return <p className="payment-list__fallback">No payments logged yet.</p>;
@@ -13,17 +13,15 @@ function PaymentList({ items, onDeletePayment, paymentStatuses }) {
   return (
     <ul className="payment-list">
       {items.map((payment) => {
-        // Look up the status for this specific payment
-        const status = paymentStatuses[payment.id] || 'pending'; // Default to pending if not found
+        const status = paymentStatuses[payment.id] || 'pending';
 
         return (
           <PaymentItem
             key={payment.id}
-            id={payment.id}
-            date={payment.date}
-            amount={payment.amount}
-            onDelete={onDeletePayment}
-            status={status} // Pass the calculated status down
+            payment={payment} // Pass the whole payment object
+            status={status}
+            onDelete={onDeletePayment} // Pass delete handler
+            onEdit={onEditPayment}   // Pass edit handler
           />
         );
       })}
@@ -32,10 +30,19 @@ function PaymentList({ items, onDeletePayment, paymentStatuses }) {
 }
 
 PaymentList.propTypes = {
-  items: PropTypes.arrayOf(/* ... shape ... */).isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string, // MongoDB ID (optional from fetch)
+      id: PropTypes.number.isRequired,
+      date: PropTypes.string.isRequired,
+      amount: PropTypes.number.isRequired,
+      serverTimestamp: PropTypes.string // Added by server
+    })
+  ).isRequired,
   onDeletePayment: PropTypes.func.isRequired,
-  paymentStatuses: PropTypes.objectOf(PropTypes.string) // Statuses is an object { id: statusString }
+  paymentStatuses: PropTypes.objectOf(PropTypes.string),
+  onEditPayment: PropTypes.func.isRequired // Add prop type for edit handler
 };
-// Make sure propTypes.objectOf(PropTypes.string) is okay, or use PropTypes.object
+// Updated shape to include potential MongoDB _id and serverTimestamp
 
 export default PaymentList;
