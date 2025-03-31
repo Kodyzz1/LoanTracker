@@ -1,42 +1,80 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+/* src/App.css */
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.loan-tracker-app {
+    max-width: 50rem; /* Limit width on larger screens (approx 800px) */
+    margin: 3rem auto; /* Center the container with space top/bottom */
+    padding: 2rem;
+    background-color: #303030; /* Slightly lighter dark shade for the card */
+    border-radius: 14px; /* Rounded corners */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); /* Subtle shadow */
   }
-  to {
-    transform: rotate(360deg);
+  
+  /* Add some spacing between the main sections */
+  .loan-tracker-app section {
+    margin-bottom: 2rem;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  
+  .loan-tracker-app section:not(:last-child) {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #555;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .loan-tracker-app section:last-child {
+    margin-bottom: 0;
+  }
 
-.read-the-docs {
-  color: #888;
-}
+  /* Style the summary details area */
+  .summary-details {
+      background-color: #444;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+  }
+  
+  .summary-details p {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+  }
+
+.loan-config {
+    /* Optional: Add specific margin/padding if needed,
+       but the section tag already gets margin from .loan-tracker-app section rule */
+  }
+  
+  .config-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; /* Space between controls */
+    /* Maybe remove margin-bottom if the section separation is enough */
+    /* margin-bottom: 1rem; */
+    text-align: left;
+  }
+  
+  .config-control {
+    flex: 1 1 10rem; /* Allow controls to grow/shrink */
+    min-width: 10rem;
+  }
+  
+  .config-control label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #eee;
+  }
+  
+  .config-control input {
+    font: inherit;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #f4f4f4;
+    color: #333;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .config-control input:focus {
+      outline: none;
+      border-color: #007bff; /* Use the same blue as button */
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }

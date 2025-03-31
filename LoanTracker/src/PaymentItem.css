@@ -1,0 +1,90 @@
+/* src/PaymentItem.css */
+
+/* Base item style (acts as 'pending' style too) */
+.payment-item {
+    display: flex;
+    justify-content: space-between; /* Pushes button away from date/amount */
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #444; /* Default background */
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid transparent; /* Default transparent border (for spacing) */
+    transition: background-color 0.3s ease, border-left-color 0.3s ease;
+    color: #eee; /* Default text color */
+  }
+  
+  /* Conditional Status Styles */
+  .payment-item--met {
+    background-color: #2f4f2f; /* Darker green background */
+    border-left-color: #28a745; /* Green left border */
+  }
+  /* Adjust text colors for better contrast on green */
+  .payment-item--met .payment-item__amount { color: #e8f5e9; }
+  .payment-item--met .payment-item__date { color: #bdcbdc; }
+  
+  .payment-item--missed {
+    background-color: #5a2d2d; /* Darker red background */
+    border-left-color: #dc3545; /* Red left border */
+  }
+  /* Adjust text colors for better contrast on red */
+  .payment-item--missed .payment-item__amount { color: #fdecea; }
+  .payment-item--missed .payment-item__date { color: #e1c4c4; }
+  
+  
+  /* Styles for Elements Inside the Item */
+  .payment-item__date {
+    color: #ccc; /* Default date color */
+    font-size: 0.9rem;
+    margin-right: 1rem; /* Space between date and amount */
+  }
+  
+  .payment-item__amount {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #fff; /* Default amount color */
+    flex-grow: 1; /* Takes up space to push button right */
+    text-align: right; /* Aligns amount text */
+    margin-right: 1rem; /* Space between amount and button */
+  }
+  
+  /* Refined Delete Button Styles (Outline by default) */
+  .payment-item__delete-button {
+    font: inherit; /* Use the base font */
+    cursor: pointer;
+    padding: 0.35rem 1rem; /* Smaller padding */
+    border-radius: 6px;
+    font-size: 0.9rem; /* Smaller font */
+    /* Outline style */
+    border: 1px solid #ff6b6b; /* Lighter red border */
+    background-color: transparent;
+    color: #ff6b6b; /* Lighter red text */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+  }
+  
+  /* Delete Button Hover/Active State (Fill on interaction) */
+  .payment-item__delete-button:hover,
+  .payment-item__delete-button:active {
+    background-color: #dc3545; /* Fill with darker red */
+    border-color: #dc3545;
+    color: white;
+  }
+  
+  /* Optional: Adjust delete button contrast on met/missed backgrounds if needed */
+  /* You might uncomment and adjust these if the red outline button is hard to see */
+  /*
+  .payment-item--met .payment-item__delete-button,
+  .payment-item--missed .payment-item__delete-button {
+       border-color: rgba(255, 255, 255, 0.7);
+       color: rgba(255, 255, 255, 0.7);
+  }
+  .payment-item--met .payment-item__delete-button:hover,
+  .payment-item--missed .payment-item__delete-button:hover,
+  .payment-item--met .payment-item__delete-button:active,
+  .payment-item--missed .payment-item__delete-button:active {
+      background-color: #c82333;
+      border-color: #bd2130;
+      color: white;
+  }
+  */

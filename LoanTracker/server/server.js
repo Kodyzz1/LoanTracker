@@ -112,6 +112,44 @@ async function startServer() {
   });
 }
 
+// DELETE a specific payment by its numeric ID
+app.delete('/api/payments/:id', async (req, res) => {
+    if (!db) {
+      return res.status(500).json({ message: 'Database not connected' });
+    }
+    try {
+      // Get the ID from the URL parameter - it will be a string
+      const idString = req.params.id;
+      // Convert the ID to a number to match the type stored in the DB
+      // (since we used Date.now() which is numeric)
+      const idToDelete = Number(idString);
+  
+      // Validate if conversion worked (check for NaN - Not a Number)
+      if (isNaN(idToDelete)) {
+          return res.status(400).json({ message: 'Invalid payment ID format.' });
+      }
+  
+      console.log(`DELETE /api/payments/${idToDelete} - Attempting delete`);
+  
+      const collection = db.collection('payments');
+      // Find the document with the matching numeric 'id' field and delete it
+      const result = await collection.deleteOne({ id: idToDelete });
+  
+      if (result.deletedCount === 1) {
+        console.log(`DELETE /api/payments/${idToDelete} - Successfully deleted`);
+        // Send success status - 204 No Content is common for successful DELETE
+        res.status(204).send();
+      } else {
+        // If deletedCount is 0, the payment with that ID wasn't found
+        console.log(`DELETE /api/payments/${idToDelete} - Payment not found`);
+        res.status(404).json({ message: 'Payment not found' });
+      }
+    } catch (err) {
+      console.error(`Failed to delete payment ${req.params.id}:`, err);
+      res.status(500).json({ message: 'Failed to delete payment' });
+    }
+  });
+
 startServer(); // Run the async function to connect DB and start Express
 
 // Optional: Graceful shutdown (close DB connection when server stops)

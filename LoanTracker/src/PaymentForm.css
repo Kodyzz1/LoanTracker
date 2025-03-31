@@ -1,0 +1,67 @@
+/* src/PaymentForm.css */
+
+.payment-form__controls {
+    display: flex; /* Arrange controls in a row */
+    flex-wrap: wrap; /* Allow items to wrap onto the next line on small screens */
+    gap: 1rem; /* Space between controls */
+    margin-bottom: 1rem;
+    text-align: left; /* Align labels to the left */
+  }
+  
+  .payment-form__control {
+    flex: 1 1 10rem; /* Allow controls to grow and shrink, base size ~10rem */
+    min-width: 10rem; /* Ensure they don't get too squished */
+  }
+  
+  .payment-form__control label {
+    display: block; /* Make label take its own line */
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #eee; /* Ensure label text is light */
+  }
+  
+  .payment-form__control input {
+    font: inherit; /* Use the base font defined in index.css */
+    padding: 0.75rem;
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid #555; /* Dark border */
+    background-color: #f4f4f4; /* Lighter background for input */
+    color: #333; /* Dark text for input */
+    width: 100%; /* Make input take full width of its container */
+    max-width: 100%;
+  }
+  
+  /* Basic styling for date input appearance if needed */
+  .payment-form__control input[type="date"] {
+    appearance: none; /* Try to override default styles */
+    -webkit-appearance: none;
+  }
+  
+  /* Styles for the button area */
+  .payment-form__actions {
+    text-align: right; /* Align button to the right */
+  }
+  
+  .payment-form__actions button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.75rem 2rem; /* Make button larger */
+    border: 1px solid #007bff; /* Blue border */
+    background-color: #007bff; /* Blue background */
+    color: white;
+    border-radius: 8px; /* Rounded corners */
+    margin-left: 1rem; /* Space if there were multiple buttons */
+  }
+  
+  .payment-form__actions button:hover,
+  .payment-form__actions button:active {
+    background-color: #0056b3; /* Darker blue on hover/active */
+    border-color: #0056b3;
+  }
+  
+  /* Optional: Add focus style for accessibility */
+  .payment-form__control input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }

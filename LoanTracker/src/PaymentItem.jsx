@@ -1,21 +1,35 @@
-import PropTypes from 'prop-types'; // Import PropTypes
+// src/PaymentItem.jsx
+import PropTypes from 'prop-types';
 import './PaymentItem.css';
 
-// Destructure props to get date and amount directly
-function PaymentItem({ date, amount }) {
+// Destructure props: { date, amount, id, onDelete, status }
+function PaymentItem({ date, amount, id, onDelete, status }) {
+
+  const deleteHandler = () => {
+    onDelete(id);
+  };
+
+  // Construct class name based on status
+  const itemClasses = `payment-item payment-item--${status || 'pending'}`;
+
   return (
-    <li className="payment-item">
-      {/* Use the destructured variables */}
+    // Apply dynamic class name
+    <li className={itemClasses}>
       <span className="payment-item__date">{date}</span>
       <span className="payment-item__amount">${amount.toFixed(2)}</span>
+      <button onClick={deleteHandler} className="payment-item__delete-button">
+        Delete
+      </button>
     </li>
   );
 }
 
-// Define expected prop types
 PaymentItem.propTypes = {
-  date: PropTypes.string.isRequired, // date should be a string and is required
-  amount: PropTypes.number.isRequired // amount should be a number and is required
+  id: PropTypes.number.isRequired,
+  date: PropTypes.string.isRequired,
+  amount: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  status: PropTypes.string // Status prop is a string ('met', 'missed', 'pending')
 };
 
 export default PaymentItem;
