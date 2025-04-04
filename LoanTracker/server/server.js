@@ -112,83 +112,155 @@ app.get('/api/payments', async (req, res) => {
 });
 
 // POST a new payment
+
 app.post('/api/payments', async (req, res) => {
-  console.log(`User ${req.user.username} adding payment.`);
-  if (!db) { return res.status(500).json({ message: 'Database not connected' }); }
-  try {
-    const newPayment = req.body;
-    console.log('POST /api/payments - Received body:', newPayment);
-    if (!newPayment || typeof newPayment.amount !== 'number' || typeof newPayment.date !== 'string') {
-      return res.status(400).json({ message: 'Invalid payment data format.' });
+    // Ensure first parameter is 'req' because we use req.user below
+    // req.user is available thanks to the authenticateToken middleware
+    console.log(`User ${req.user.username} adding payment.`);
+    if (!db) {
+      return res.status(500).json({ message: 'Database not connected' });
     }
-    const documentToInsert = {
-      id: Date.now(), date: newPayment.date, amount: newPayment.amount, serverTimestamp: new Date(),
-      // TODO: Associate payment with user (e.g., add createdBy: req.user.userId)
-    };
-    const collection = db.collection('payments');
-    const result = await collection.insertOne(documentToInsert);
-    if (!result.acknowledged) { throw new Error('Failed to insert payment into database.'); }
-    console.log('POST /api/payments - Inserted ID:', result.insertedId);
-    res.status(201).json(documentToInsert);
-  } catch (err) {
-    console.error("Failed to add payment:", err);
-    res.status(500).json({ message: 'Failed to add payment' });
-  }
-});
+  
+    try {
+      const newPayment = req.body; // Contains { date, amount } from frontend form
+      console.log('POST /api/payments - Received body:', newPayment);
+  
+      // Basic validation
+      if (!newPayment || typeof newPayment.amount !== 'number' || typeof newPayment.date !== 'string') {
+        return res.status(400).json({ message: 'Invalid payment data format.' });
+      }
+  
+      // Prepare document for insertion, adding user details from req.user
+      const documentToInsert = {
+        // --- Fields from frontend ---
+        date: newPayment.date,
+        amount: newPayment.amount,
+        // --- Fields added by server ---
+        id: Date.now(),             // Keep existing numeric ID for now
+        serverTimestamp: new Date(),
+        // --- Link to User (from JWT via middleware) ---
+        userId: req.user.userId,    // <<< ADDED THIS LINE
+        username: req.user.username // <<< ADDED THIS LINE
+      };
+  
+      const collection = db.collection('payments');
+      const result = await collection.insertOne(documentToInsert);
+  
+      // Check if the insert operation was acknowledged by the database
+      if (!result.acknowledged) {
+           throw new Error('Failed to insert payment into database.');
+      }
+  
+      console.log('POST /api/payments - Inserted MongoDB _id:', result.insertedId);
+      // Send back the full document we created (which now includes userId and username)
+      res.status(201).json(documentToInsert);
+  
+    } catch (err) {
+      console.error("Failed to add payment:", err);
+      res.status(500).json({ message: 'Failed to add payment' });
+    }
+  });
 
 // PUT (update) a specific payment by its numeric ID
 app.put('/api/payments/:id', async (req, res) => {
-  console.log(`User ${req.user.username} updating payment ${req.params.id}.`);
-  if (!db) { return res.status(500).json({ message: 'Database not connected' }); }
-  try {
-    const idString = req.params.id;
-    const idToUpdate = Number(idString);
-    if (isNaN(idToUpdate)) { return res.status(400).json({ message: 'Invalid payment ID format.' }); }
-    const updatedData = req.body;
-    console.log(`PUT /api/payments/${idToUpdate} - Received body:`, updatedData);
-    if (!updatedData || typeof updatedData.amount !== 'number' || typeof updatedData.date !== 'string') {
-      return res.status(400).json({ message: 'Invalid updated payment data format (requires date and amount).' });
+    console.log(`User ${req.user.username} attempting to update payment ${req.params.id}.`);
+    if (!db) { return res.status(500).json({ message: 'Database not connected' }); }
+  
+    try {
+      const idString = req.params.id;
+      const idToUpdate = Number(idString);
+      if (isNaN(idToUpdate)) { return res.status(400).json({ message: 'Invalid payment ID format.' }); }
+  
+      const updatedData = req.body;
+      if (!updatedData || typeof updatedData.amount !== 'number' || typeof updatedData.date !== 'string') {
+        return res.status(400).json({ message: 'Invalid updated payment data format.' });
+      }
+  
+      const collection = db.collection('payments');
+  
+      // --- Authorization Check ---
+      // 1. Find the payment first to check ownership
+      const existingPayment = await collection.findOne({ id: idToUpdate });
+  
+      if (!existingPayment) {
+        console.log(`PUT /api/payments/${idToUpdate} - Payment not found`);
+        return res.status(404).json({ message: 'Payment not found' });
+      }
+  
+      // 2. Check if the logged-in user owns this payment
+      if (existingPayment.userId !== req.user.userId) { // Compare stored userId with token's userId
+        console.warn(`PUT /api/payments/${idToUpdate} - FORBIDDEN for user ${req.user.username}`);
+        return res.status(403).json({ message: 'Forbidden: You cannot modify this payment.' });
+      }
+      // --- End Authorization Check ---
+  
+      // Prepare the fields to update
+      const updateDocument = { $set: { date: updatedData.date, amount: updatedData.amount } };
+  
+      // User is authorized, proceed with update
+      const result = await collection.updateOne({ id: idToUpdate /* Optional: add userId: req.user.userId here too for extra safety */ }, updateDocument);
+  
+      if (result.matchedCount === 0) { // Should ideally not happen due to findOne check, but good failsafe
+         return res.status(404).json({ message: 'Payment not found during update attempt' });
+      }
+  
+      if (result.modifiedCount >= 0) { // Check >= 0 because modifiedCount is 0 if data is same
+        console.log(`PUT /api/payments/${idToUpdate} - Successfully processed update (Modified: ${result.modifiedCount})`);
+        const updatedPayment = await collection.findOne({ id: idToUpdate });
+        res.status(200).json(updatedPayment);
+      } else { throw new Error('Update result unexpected.'); }
+  
+    } catch (err) {
+      console.error(`Failed to update payment ${req.params.id}:`, err);
+      res.status(500).json({ message: 'Failed to update payment' });
     }
-    const updateDocument = { $set: { date: updatedData.date, amount: updatedData.amount } };
-    const collection = db.collection('payments');
-    // TODO: Add check later to ensure user is allowed to update this payment (req.user.userId === payment.createdBy?)
-    const result = await collection.updateOne({ id: idToUpdate }, updateDocument);
-    if (result.matchedCount === 0) { console.log(`PUT /api/payments/${idToUpdate} - Payment not found`); return res.status(404).json({ message: 'Payment not found' }); }
-    if (result.modifiedCount >= 0) {
-      console.log(`PUT /api/payments/${idToUpdate} - Processed update (Modified: ${result.modifiedCount})`);
-      const updatedPayment = await collection.findOne({ id: idToUpdate });
-      res.status(200).json(updatedPayment);
-    } else { throw new Error('Update result unexpected.'); }
-  } catch (err) {
-    console.error(`Failed to update payment ${req.params.id}:`, err);
-    res.status(500).json({ message: 'Failed to update payment' });
-  }
-});
+  });
 
 // DELETE a specific payment by its numeric ID
 app.delete('/api/payments/:id', async (req, res) => {
-  console.log(`User ${req.user.username} deleting payment ${req.params.id}.`);
-  if (!db) { return res.status(500).json({ message: 'Database not connected' }); }
-  try {
-    const idString = req.params.id;
-    const idToDelete = Number(idString);
-    if (isNaN(idToDelete)) { return res.status(400).json({ message: 'Invalid payment ID format.' }); }
-    console.log(`DELETE /api/payments/${idToDelete} - Attempting delete`);
-    const collection = db.collection('payments');
-     // TODO: Add check later to ensure user is allowed to delete this payment (req.user.userId === payment.createdBy?)
-    const result = await collection.deleteOne({ id: idToDelete });
-    if (result.deletedCount === 1) {
-      console.log(`DELETE /api/payments/${idToDelete} - Successfully deleted`);
-      res.status(204).send();
-    } else {
-      console.log(`DELETE /api/payments/${idToDelete} - Payment not found`);
-      res.status(404).json({ message: 'Payment not found' });
+    console.log(`User ${req.user.username} attempting to delete payment ${req.params.id}.`);
+    if (!db) { return res.status(500).json({ message: 'Database not connected' }); }
+  
+    try {
+      const idString = req.params.id;
+      const idToDelete = Number(idString);
+      if (isNaN(idToDelete)) { return res.status(400).json({ message: 'Invalid payment ID format.' }); }
+  
+      const collection = db.collection('payments');
+  
+      // --- Authorization Check ---
+      // 1. Find the payment first to check ownership
+      const paymentToDelete = await collection.findOne({ id: idToDelete });
+  
+      if (!paymentToDelete) {
+        console.log(`DELETE /api/payments/${idToDelete} - Payment not found`);
+        return res.status(404).json({ message: 'Payment not found' });
+      }
+  
+      // 2. Check if the logged-in user owns this payment
+      if (paymentToDelete.userId !== req.user.userId) { // Compare stored userId with token's userId
+        console.warn(`DELETE /api/payments/${idToDelete} - FORBIDDEN for user ${req.user.username}`);
+        return res.status(403).json({ message: 'Forbidden: You cannot delete this payment.' });
+      }
+      // --- End Authorization Check ---
+  
+      // User is authorized, proceed with deletion
+      console.log(`DELETE /api/payments/${idToDelete} - Attempting delete by owner`);
+      const result = await collection.deleteOne({ id: idToDelete /* Optional: add userId: req.user.userId here too */ });
+  
+      if (result.deletedCount === 1) {
+        console.log(`DELETE /api/payments/${idToDelete} - Successfully deleted`);
+        res.status(204).send(); // Send No Content on successful delete
+      } else {
+        // Should not happen if findOne succeeded, but good failsafe
+        console.log(`DELETE /api/payments/${idToDelete} - Delete failed unexpectedly after find`);
+        res.status(404).json({ message: 'Payment not found during delete attempt' });
+      }
+    } catch (err) {
+      console.error(`Failed to delete payment ${req.params.id}:`, err);
+      res.status(500).json({ message: 'Failed to delete payment' });
     }
-  } catch (err) {
-    console.error(`Failed to delete payment ${req.params.id}:`, err);
-    res.status(500).json({ message: 'Failed to delete payment' });
-  }
-});
+  });
 
 // === Start Server ===
 async function startServer() {

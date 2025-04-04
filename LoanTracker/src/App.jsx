@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from './hooks/useAuth'; // Ensure path is correct
 import LoginForm from './components/auth/LoginForm.jsx'; // Ensure path is correct
 import RegisterForm from './components/auth/RegisterForm.jsx'; // Import RegisterForm
@@ -22,6 +22,7 @@ function App() {
   // --- State ---
   const { isLoggedIn, isInitialized, user, logout, token } = useAuth();
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const errorTimeoutRef = useRef(null);
 
   // eslint-disable-next-line no-unused-vars
   const [totalAmount, setTotalAmount] = useState(7500);
@@ -69,6 +70,19 @@ function App() {
   useEffect(() => { localStorage.setItem(LS_KEYS.DUE_DAY, JSON.stringify(dueDay)); }, [dueDay]);
   useEffect(() => { setDueDayInput(String(dueDay)); }, [dueDay]);
 
+  useEffect(() => {
+    clearTimeout(errorTimeoutRef.current);
+
+    if (error) {
+        errorTimeoutRef.current = setTimeout(() => {
+            setError(null);   
+        }, 5000);
+    }
+    return () => {
+        clearTimeout(errorTimeoutRef.current);
+    };
+  }, [error]);
+
   // --- Calculations ---
   const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const remainingBalance = totalAmount - totalPaid;
@@ -90,23 +104,40 @@ function App() {
   }, [payments, monthlyGoal]);
 
   // --- Reusable Error Handler for Fetch ---
-   const handleFetchError = async (response, defaultMessage = 'An error occurred.') => {
-    let errorMsg = `${defaultMessage} status: ${response.status}`;
-    if (response.status === 401 || response.status === 403) {
-        logout();
+
+const handleFetchError = async (response, defaultAction = 'perform action') => {
+    let errorMsg = `Failed to ${defaultAction}. Status: ${response.status}`;
+  
+    // Handle specific common error statuses
+    if (response.status === 401) { // Unauthorized (e.g., bad/expired token)
+        logout(); // Log the user out
         errorMsg = 'Authentication failed. Please log in again.';
+    } else if (response.status === 403) { // Forbidden (e.g., trying to edit/delete others' data)
+        // --- DO NOT LOG OUT ---
+        errorMsg = 'Permission denied. You cannot perform this action.';
+        // Try to get a more specific message from the server if available
+        try { const errorData = await response.json(); errorMsg = errorData.message || errorMsg; } catch (_e) {}
     } else if (response.status === 404) {
         errorMsg = 'Requested resource not found.';
     } else {
+        // For other client/server errors (e.g., 400, 500), try parsing the body
         try {
             const errorData = await response.json();
-            errorMsg = errorData.message || errorMsg;
+            errorMsg = errorData.message || errorMsg; // Use server message if available
         } catch (_parseError) {
+            // Keep the status-based message if parsing fails
             console.warn('Could not parse error response body');
         }
     }
+    // Throw the constructed error message to be caught by the calling handler
     throw new Error(errorMsg);
   };
+  
+  // Make sure your catch blocks in add/delete/save still just set the error state:
+  // catch (e) {
+  //   console.error("Failed to ...:", e);
+  //   setError(`Failed to ...: ${e.message}`); // This uses the message thrown by handleFetchError
+  // }
 
   // --- Action Handlers ---
 
@@ -191,7 +222,7 @@ function App() {
             <h2>Payment History</h2>
             {isLoading && <p className="loading-message">Loading payments...</p>}
             {error && <p className="error-message">Error: {error}</p>}
-            {!isLoading && !error && (
+            {!isLoading && (
               <PaymentList
                 items={payments}
                 onDeletePayment={deletePaymentHandler}
