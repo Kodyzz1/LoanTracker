@@ -1,0 +1,106 @@
+/* src/components/Auth/RegisterForm.css */
+
+.register-form-container {
+    /* Add some padding or margin if needed inside the card */
+    padding: 1rem 0;
+}
+
+.register-form-container h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #fff; /* Ensure heading is light */
+}
+
+.form-control { /* Reusing generic class name */
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.form-control label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #eee;
+}
+
+.form-control input {
+    font: inherit;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #f4f4f4;
+    color: #333;
+    width: 100%;
+    max-width: 100%;
+}
+
+.form-control input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-actions { /* Reusing generic class name */
+    margin-top: 1.5rem;
+    text-align: center; /* Center register button */
+}
+
+.form-actions button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.75rem 2rem;
+    border: 1px solid #28a745; /* Green for register? */
+    background-color: #28a745;
+    color: white;
+    border-radius: 8px;
+}
+
+.form-actions button:hover,
+.form-actions button:active {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.form-actions button:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Error message style (reuse from App.css or define here) */
+.register-form-container .error-message {
+  color: #f8d7da;
+  background-color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 1rem; /* Add margin top */
+  margin-bottom: 1rem;
+}
+
+ /* Success message style */
+.register-form-container .success-message {
+  color: #d4edda;
+  background-color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Style for potential switch button later */
+.form-actions button[type="button"] {
+    background-color: transparent;
+    color: #007bff; /* Link color */
+    border: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+ .form-actions button[type="button"]:hover {
+     text-decoration: underline;
+     background-color: transparent; /* Ensure no background on hover */
+ }

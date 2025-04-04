@@ -1,0 +1,82 @@
+/* src/components/Auth/LoginForm.css */
+
+.login-form-container {
+    /* Add some padding or margin if needed inside the card */
+    padding: 1rem 0;
+  }
+  
+  .login-form-container h2 {
+    /* Heading already styled globally, add specific overrides if needed */
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Reuse styles similar to PaymentForm/Config */
+  .form-control { /* Assuming LoginForm uses this class from example */
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  .form-control label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #eee;
+  }
+  
+  .form-control input {
+    font: inherit;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #f4f4f4;
+    color: #333;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .form-control input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+  
+  .form-actions { /* Assuming LoginForm uses this class from example */
+    margin-top: 1.5rem;
+    text-align: center; /* Center login button */
+  }
+  
+  .form-actions button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.75rem 2rem;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 8px;
+  }
+  
+  .form-actions button:hover,
+  .form-actions button:active {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  
+  .form-actions button:disabled {
+      background-color: #ccc;
+      border-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+  }
+  
+  /* Reuse error message style if needed, maybe scoped? */
+  /* If LoginForm has its own error display logic */
+  .login-form-container .error-message {
+    color: #f8d7da;
+    background-color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 0.75rem;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
